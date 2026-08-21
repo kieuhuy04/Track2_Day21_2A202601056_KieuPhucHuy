@@ -27,13 +27,21 @@ HƯỚNG DẪN - đọc rồi XÓA TOÀN BỘ các khối chú thích này sau k
 
 | Lần chạy | n_estimators | learning_rate | max_depth | f1_score | accuracy |
 |---|---|---|---|---|---|
-| 1 | ___ | ___ | ___ | ___ | ___ |
-| 2 | ___ | ___ | ___ | ___ | ___ |
-| 3 | ___ | ___ | ___ | ___ | ___ |
+| 1 | 100 | 0.1 | 3 | 0.7109 | 0.8780 |
+| 2 | 50 | 0.05 | 2 | 0.6051 | 0.8460 |
+| 3 | 200 | 0.1 | 5 | 0.7149 | 0.8740 |
+| 4 | 200 | 0.2 | 3 | 0.7032 | 0.8700 |
+| 5 | 300 | 0.05 | 4 | 0.7070 | 0.8740 |
 
-**Bộ siêu tham số đã chọn:** `n_estimators=___`, `learning_rate=___`, `max_depth=___`.
+**Bộ siêu tham số đã chọn:** `n_estimators=200`, `learning_rate=0.1`, `max_depth=5`.
 
-**Lý do:** ___
+**Lý do:** Bộ này đạt f1_score cao nhất trong 5 lần chạy (0.7149), vượt ngưỡng chất lượng
+0.65 của lab. Đáng chú ý, lần chạy có accuracy cao nhất (lần 1, 0.8780) không phải là lần
+có f1_score cao nhất — accuracy dao động rất ít (0.846-0.878) trong khi f1_score dao động
+mạnh hơn (0.605-0.715), cho thấy accuracy che giấu sự khác biệt thực sự về khả năng nhận
+diện lớp thu nhập cao giữa các mô hình. Về đánh đổi n_estimators/learning_rate: lần 2 dùng
+ít cây (50) với learning_rate thấp (0.05) cho kết quả kém nhất vì mô hình chưa hội tụ đủ;
+tăng n_estimators lên 200-300 để bù learning_rate thấp giúp cải thiện rõ rệt.
 
 <!--
 Trả lời trong phần Lý do:
@@ -49,7 +57,17 @@ Trả lời trong phần Lý do:
 
 <!-- Khoảng 120 - 150 từ. -->
 
-___
+Tập dữ liệu Adult có phân bố lớp mất cân bằng: chỉ 24.8% mẫu thuộc lớp thu nhập cao
+(>50K), còn lại 75.2% thuộc lớp thu nhập thấp. Với tỷ lệ này, một mô hình vô dụng luôn
+trả lời "thu nhập thấp" cho mọi đầu vào vẫn đạt accuracy 0.752 — con số trông rất cao
+nhưng gây hiểu nhầm nghiêm trọng, vì mô hình đó không bắt được một trường hợp thu nhập
+cao nào (f1_score = 0). Ngược lại, f1_score của lớp dương đo trung bình điều hòa giữa
+precision và recall riêng cho lớp thiểu số (thu nhập cao) — chỉ số này giảm mạnh khi mô
+hình bỏ sót hoặc đoán sai lớp thiểu số, nên phản ánh đúng năng lực thực sự của mô hình.
+Vì lý do tương tự, không dùng `average="weighted"` hay `average="macro"` khi gọi
+`f1_score`, vì hai cách tính này gộp cả lớp đa số vào, và điểm số bị lớp đa số (75.2%
+mẫu) kéo lên cao một cách giả tạo, che mất hiệu suất kém trên lớp thu nhập cao mà lab
+này thực sự quan tâm.
 
 <!--
 Cần nêu được:
